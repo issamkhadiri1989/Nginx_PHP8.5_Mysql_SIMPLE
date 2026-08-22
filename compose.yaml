@@ -11,7 +11,6 @@ services:
             - "443:443"
         volumes:
             - ./src:/var/www/html:ro,cached
-            - ./var/log/nginx:/var/log/nginx
             - ./infra/nginx/conf.d:/etc/nginx/conf.d
         depends_on:
             - fpm
@@ -63,6 +62,7 @@ services:
             - internal_network
         volumes:
             - db_admin_data:/var/www/html
+
 volumes:
     db_admin_data:
     mysql_user:

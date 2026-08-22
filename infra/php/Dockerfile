@@ -65,14 +65,14 @@ RUN pecl install xdebug-3.5.1 && \
     docker-php-ext-enable xdebug
 
 # Installer l'extension Redis
-#RUN pecl install redis && \
-#    docker-php-ext-enable redis
+RUN pecl install redis && \
+   docker-php-ext-enable redis
 
 # Installer MongoDB
-#RUN pecl install mongodb && docker-php-ext-enable mongodb
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 
 # Installer les extensions PHP
-#COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-#RUN install-php-extensions gd bcmath zip xsl ldap
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions gd bcmath zip xsl ldap
 
 USER root
