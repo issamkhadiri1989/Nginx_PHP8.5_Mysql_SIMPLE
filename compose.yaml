@@ -1,0 +1,72 @@
+services:
+    nginx:
+        build:
+            context: ./infra/
+            args:
+                BUILD_ARGUMENT_ENV: dev
+            dockerfile: ./nginx/Dockerfile
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./src:/var/www/html:ro,cached
+            - ./var/log/nginx:/var/log/nginx
+            - ./infra/nginx/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - fpm
+        networks:
+            - internal_network
+
+    fpm:
+        build:
+            context: ./infra/
+            dockerfile: ./php/Dockerfile
+        volumes:
+            - ./src:/var/www/html:cached
+            - ./infra/php/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+            - ./infra/php/config/php.ini:/usr/local/etc/php/php.ini
+            - ./infra/php/xdebug/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+        depends_on:
+            - database
+        networks:
+            - internal_network
+        expose:
+            - "9000"
+            - "9003"
+
+    database:
+        image: mysql:8.4
+        platform: linux/x86_64
+        command: 
+            - --innodb-use-native-aio=${INNODB_USE_NATIVE_AIO:-1} 
+            - --sql_mode=${SQL_MODE:-"ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"}
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DATABASE_NAME}
+        ports:
+            - "33060:3306"
+        volumes:
+            - mysql_user:/var/lib/mysql:delegated
+        networks:
+            - internal_network
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:5
+        environment:
+            PMA_HOST: database
+        ports:
+            - "9002:80"
+        depends_on:
+            - database
+        networks:
+            - internal_network
+        volumes:
+            - db_admin_data:/var/www/html
+volumes:
+    db_admin_data:
+    mysql_user:
+
+networks:
+    internal_network:
+        name: internal_network
