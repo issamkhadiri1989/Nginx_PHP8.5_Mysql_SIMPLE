@@ -1,22 +1,4 @@
 services:
-    # nginx:
-    #     build:
-    #         context: ./infra/
-    #         args:
-    #             BUILD_ARGUMENT_ENV: dev
-    #         dockerfile: ./nginx/Dockerfile
-    #     restart: always
-    #     ports:
-    #         - "8080:80"
-    #         - "443:443"
-    #     volumes:
-    #         - ./src:/var/www/html:ro,cached
-    #         - ./infra/nginx/conf.d:/etc/nginx/conf.d
-    #     depends_on:
-    #         - fpm
-    #     networks:
-    #         - internal_network
-
     fpm:
         build:
             context: ./infra/

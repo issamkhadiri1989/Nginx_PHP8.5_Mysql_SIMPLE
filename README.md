@@ -1,11 +1,11 @@
 # Local PHP Development Stack
 
-A Dockerized local development environment for PHP applications using Nginx, PHP-FPM, MySQL, and phpMyAdmin.
+A Dockerized local development environment for PHP / Symfony applications using the Symfony CLI local web server, PHP-FPM runtime, MySQL, and phpMyAdmin.
 
 ## Stack
 
 - PHP 8.5-FPM
-- Nginx (Alpine)
+- Symfony CLI (local web server)
 - MySQL 8.4
 - phpMyAdmin 5
 - Docker Compose
@@ -22,12 +22,11 @@ A Dockerized local development environment for PHP applications using Nginx, PHP
 
 ## Included services
 
-- `nginx` – serves the application through HTTP on port `80` and HTTPS on port `443`
-- `fpm` – PHP runtime via PHP-FPM, internally exposed on ports `9000` (FPM) and `9003` (Xdebug) within the Docker network
-- `database` – MySQL 8.4 database, published on host port `33060` (container `3306`)
-- `phpmyadmin` – database administration interface on port `9002`
+- `fpm` – PHP 8.5 runtime that runs the Symfony CLI local web server (`symfony server:start`). It is published on host port `80` (mapped to the container's port `8000`) and internally exposes ports `9000` (FPM) and `9003` (Xdebug) within the Docker network.
+- `database` – MySQL 8.4 database, published on host port `33060` (container `3306`).
+- `phpmyadmin` – database administration interface on port `9002`.
 
-All services communicate over the `internal_network` Docker bridge network.
+All services communicate over the `internal_network` Docker bridge network. The application is served directly by the Symfony CLI web server started inside the `fpm` container.
 
 ## Enabled PHP extensions
 
@@ -47,12 +46,28 @@ The PHP container enables the following extensions:
 - `xsl`
 - `ldap`
 
+The `fpm` image also bundles the **Symfony CLI**, **Composer**, and common developer tooling (git, unzip, nano, fish, supervisor, cron).
+
+## How the web server starts
+
+The `fpm` service is configured with:
+
+```yaml
+command: symfony server:start --port=8000 --allow-all-ip --no-tls
+```
+
+- `--allow-all-ip` makes the server listen on `0.0.0.0` so it is reachable from the host.
+- `--port=8000` matches the `80:8000` port mapping, exposing the app on `http://localhost`.
+- `--no-tls` disables local HTTPS.
+- The server runs in the foreground, which keeps the container alive.
+
+The Symfony project must exist in `./src` (with a `public/` directory) for the server to find a document root.
+
 ## Project configuration
 
 The environment is defined in `compose.yaml` and uses the following mounted directories and files:
 
 - Application source: `./src` → `/var/www/html`
-- Nginx config: `./infra/nginx/conf.d` → `/etc/nginx/conf.d`
 - PHP-FPM config: `./infra/php/php-fpm.d/www.conf` → `/usr/local/etc/php-fpm.d/www.conf`
 - PHP ini: `./infra/php/config/php.ini` → `/usr/local/etc/php/php.ini`
 - Xdebug ini: `./infra/php/xdebug/xdebug.ini` → `/usr/local/etc/php/conf.d/xdebug.ini`
@@ -118,7 +133,6 @@ docker compose logs -f
 ### View logs for a specific service
 
 ```bash
-docker compose logs -f nginx
 docker compose logs -f fpm
 docker compose logs -f database
 ```
@@ -132,7 +146,6 @@ docker compose restart
 ### Restart a specific service
 
 ```bash
-docker compose restart nginx
 docker compose restart fpm
 docker compose restart database
 ```
@@ -141,7 +154,6 @@ docker compose restart database
 
 ```bash
 docker compose exec fpm bash
-docker compose exec nginx sh
 docker compose exec database mysql -u root -p
 ```
 
@@ -153,7 +165,7 @@ docker compose up -d --force-recreate
 
 ## Composer & application commands
 
-Composer is installed inside the `fpm` container. Run commands from the container shell or directly:
+Composer and the Symfony CLI are installed inside the `fpm` container. Run commands from the container shell or directly:
 
 ```bash
 # Install dependencies
@@ -166,22 +178,25 @@ docker compose exec fpm composer require <vendor/package>
 docker compose exec fpm composer update
 ```
 
-If the application is a Symfony project, the console is available at `bin/console`:
+Symfony console and CLI commands:
 
 ```bash
 docker compose exec fpm php bin/console cache:clear
 docker compose exec fpm php bin/console doctrine:migrations:migrate
+
+# Symfony CLI server management
+docker compose exec fpm symfony server:status
+docker compose exec fpm symfony server:log
 ```
 
 ## Access URLs
 
 - Application: `http://localhost`
-- HTTPS: `https://localhost`
 - phpMyAdmin: `http://localhost:9002`
 - MySQL: `localhost:33060`
 
 ## Notes
 
-- Nginx uses a self-signed certificate generated during the image build.
+- The application is served by the Symfony CLI local web server.
 - The project is designed for local development and debugging workflows.
-- Xdebug is enabled for PHP debugging support.
+- Xdebug is enabled for PHP debugging support (Xdebug port `9003`).
