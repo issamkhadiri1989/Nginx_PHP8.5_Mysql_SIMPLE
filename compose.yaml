@@ -17,7 +17,7 @@ services:
         expose:
             - "9000"
             - "9003"
-        command: symfony server:start --port=8000 --allow-all-ip --no-tls
+        # command: symfony server:start --port=8000 --allow-all-ip --no-tls
 
     database:
         image: mysql:8.4
