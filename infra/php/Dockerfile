@@ -75,4 +75,9 @@ RUN pecl install mongodb && docker-php-ext-enable mongodb
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions gd bcmath zip xsl ldap
 
+# Install the Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash && \
+   mv /root/.symfony5/bin/symfony /usr/local/bin/symfony && \
+   mv /root/.symfony5 /root/.config/symfony-cli
+
 USER root
