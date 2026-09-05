@@ -37,9 +37,10 @@ services:
     database:
         image: mysql:8.4
         platform: linux/x86_64
-        command: 
-            - --innodb-use-native-aio=${INNODB_USE_NATIVE_AIO:-1} 
-            - --sql_mode=${SQL_MODE:-"ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"}
+        command:
+            - --innodb-use-native-aio=${INNODB_USE_NATIVE_AIO:-1}
+            - --sql_mode=${SQL_MODE:-ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION}
+        
         environment:
             MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
             MYSQL_DATABASE: ${DATABASE_NAME}

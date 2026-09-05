@@ -55,25 +55,9 @@ RUN composer completion bash > /etc/bash_completion.d/composer
 # set working directory
 WORKDIR $APP_HOME
 
-# Installer APCu
-RUN mkdir -p /usr/src/php/ext/apcu && \
-    curl -fsSL https://pecl.php.net/get/apcu | tar xvz -C "/usr/src/php/ext/apcu" --strip 1 && \
-    docker-php-ext-install apcu
-
 # Installer Xdebug
 RUN pecl install xdebug-3.5.1 && \
     docker-php-ext-enable xdebug
-
-# Installer l'extension Redis
-RUN pecl install redis && \
-   docker-php-ext-enable redis
-
-# Installer MongoDB
-RUN pecl install mongodb && docker-php-ext-enable mongodb
-
-# Installer les extensions PHP
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions gd bcmath zip xsl ldap
 
 # Install the Symfony CLI
 RUN curl -sS https://get.symfony.com/cli/installer | bash && \
