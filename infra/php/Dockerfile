@@ -60,8 +60,7 @@ RUN pecl install xdebug-3.5.1 && \
     docker-php-ext-enable xdebug
 
 # Install the Symfony CLI
-RUN curl -sS https://get.symfony.com/cli/installer | bash && \
-   mv /root/.symfony5/bin/symfony /usr/local/bin/symfony && \
-   mv /root/.symfony5 /root/.config/symfony-cli
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash && \
+     apt install symfony-cli
 
 USER root
