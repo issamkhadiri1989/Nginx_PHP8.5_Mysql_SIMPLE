@@ -64,6 +64,13 @@ services:
         volumes:
             - db_admin_data:/var/www/html
 
+    composer:
+        image: composer:latest
+        working_dir: /var/www/html
+        volumes:
+            - ./app:/var/www/html
+        command: tail -f /dev/null
+
 volumes:
     db_admin_data:
     mysql_user:
