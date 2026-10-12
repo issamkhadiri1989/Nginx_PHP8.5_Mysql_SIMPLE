@@ -10,7 +10,7 @@ services:
             - "80:80"
             - "443:443"
         volumes:
-            - ./src:/var/www/html:ro,cached
+            - ./app:/var/www/html:ro,cached
             - ./infra/nginx/conf.d:/etc/nginx/conf.d
         depends_on:
             - fpm
@@ -22,7 +22,7 @@ services:
             context: ./infra/
             dockerfile: ./php/Dockerfile
         volumes:
-            - ./src:/var/www/html:cached
+            - ./app:/var/www/html:cached
             - ./infra/php/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
             - ./infra/php/config/php.ini:/usr/local/etc/php/php.ini
             - ./infra/php/xdebug/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
