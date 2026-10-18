@@ -44,14 +44,6 @@ RUN set -eux; \
             intl \
             zip
 
-# install composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN chmod +x /usr/bin/composer
-ENV COMPOSER_ALLOW_SUPERUSER=1
-
-# Enable Composer autocompletion
-RUN composer completion bash > /etc/bash_completion.d/composer
-
 # set working directory
 WORKDIR $APP_HOME
 
