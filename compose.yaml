@@ -32,11 +32,9 @@ services:
             - internal_network
         expose:
             - "9000"
-            - "9003"
 
     database:
         image: mysql:8.4
-        platform: linux/x86_64
         command:
             - --innodb-use-native-aio=${INNODB_USE_NATIVE_AIO:-1}
             - --sql_mode=${SQL_MODE:-ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION}
@@ -61,18 +59,8 @@ services:
             - database
         networks:
             - internal_network
-        volumes:
-            - db_admin_data:/var/www/html
-
-    composer:
-        image: composer:latest
-        working_dir: /var/www/html
-        volumes:
-            - ./app:/var/www/html
-        command: tail -f /dev/null
 
 volumes:
-    db_admin_data:
     mysql_user:
 
 networks:

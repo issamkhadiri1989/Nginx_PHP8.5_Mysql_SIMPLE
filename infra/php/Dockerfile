@@ -16,6 +16,7 @@ RUN set -eux; \
             nano \
             git \
             unzip \
+            zip \
             libicu-dev \
             zlib1g-dev \
             libxml2 \
@@ -43,6 +44,10 @@ RUN set -eux; \
             sockets \
             intl \
             zip
+
+# install Composer (same PHP runtime as the app)
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # set working directory
 WORKDIR $APP_HOME
